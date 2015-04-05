@@ -1,0 +1,31 @@
+{
+  "name": "qubui",
+  "version": "1.0.0",
+  "description": "make flexible query",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "keywords": [
+    "sql",
+    "query"
+  ],
+  "author": "taijipp <taijipp@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^3.6.0",
+    "promise": "^6.1.0"
+  },
+  "devDependencies": {},
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taijipp/qubui"
+  },
+  "bugs": {
+    "url": "https://github.com/taijipp/qubui/issues"
+  },
+  "homepage": "https://github.com/taijipp/qubui"
+}
