@@ -1,0 +1,2 @@
+# qubui
+make flexible query
