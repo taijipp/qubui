@@ -75,13 +75,13 @@ QuBui.prototype.build = function() {
 	var group = (this.Q.group.length>0)?' GROUP BY '+	this.Q.group.join():'';
 	var having= (this.Q.having.length>0)?' HAVING '+	this.Q.having.join():'';
 
-	if(this.command && this.Q.table.length>0){
+	if(this.command){
 		switch(this.command) {
 			case 'SELECT':
 				var field = (this.Q.field.length>0)?this.Q.field.join():'*';
 				var joins = (this.Q.join.length>0 )?_.chain(this.Q.join).zip(this.Q.on).flatten().join('').value():'';
 
-				this.query = 'SELECT '+field+' FROM '+this.Q.table.join()+joins+where+group+having+order+limit;
+				this.query = 'SELECT '+field+(this.Q.table.length>0?' FROM '+this.Q.table.join()+joins+where+group+having+order+limit:'');
 				this.args = this.args.concat(this.V.on, this.V.where, this.V.having, this.V.order, this.V.limit);
 			break;
 			case 'INSERT':
@@ -327,7 +327,7 @@ QuBui.prototype._errorHandler = function(e) {
 QuBui.prototype.sub =
 QuBui.prototype.subQuery = function(name) {
 	this.build();
-	return '('+this.query+') '+name;
+	return '('+this.query+') '+(name?name:'');
 };
 QuBui.prototype.getAll =
 QuBui.prototype.getList = function(callback) {
