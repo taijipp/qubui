@@ -42,6 +42,14 @@ Select:
 // SELECT * FROM TEST
 var express = qubui(DB).select().from('TEST').getList( HANDLER );
 var koajs = yield this.qubui().select().from('TEST').getList();
+
+// And...
+var qb = qubui(DB).select().from('TEST');
+if(req.use){ qb.where('use<?, req.id); }
+if(req.zip){ qb.where('zip=?, req.zip); }
+if(req.cnt){ qb.limit(req.cnt); }
+if(req.srt){ qb.order(req.srt); }
+qb.getList( HANDLER );
 ```
 
 Insert:
