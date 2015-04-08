@@ -336,7 +336,7 @@ QuBui.prototype.getList = function(callback) {
 	this.build();
 	
 	return this.db.__query(this.query, this.args).then(function(result){
-		return callback(false, result||false);
+		return callback(false, result);
 	}).catch(this._errorHandler);
 };
 QuBui.prototype.getOne =
@@ -346,7 +346,7 @@ QuBui.prototype.getRow = function(callback) {
 	this.build();
 	
 	return this.db.__query(this.query, this.args).then(function(result){
-		return callback(false, result[0]||false);
+		return callback(false, result[0]);
 	}).catch(this._errorHandler);
 };
 QuBui.prototype.getFirstColumn = function(callback) {
@@ -355,7 +355,7 @@ QuBui.prototype.getFirstColumn = function(callback) {
 	this.build();
 	
 	return this.db.__query(this.query, this.args).then(function(result){
-		return callback(false, result[0][Object.keys(result[0])[0]]||false);
+		return callback(false, result[0][Object.keys(result[0])[0]]);
 	}).catch(this._errorHandler);
 };
 QuBui.prototype.do =
@@ -364,6 +364,6 @@ QuBui.prototype.run = function(callback) {
 	this.build();
 	
 	return this.db.__query(this.query, this.args).then(function(result){
-		return callback(false, result||false);
+		return callback(false, result);
 	}).catch(this._errorHandler);
 };
