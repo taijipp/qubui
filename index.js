@@ -190,7 +190,13 @@ QuBui.prototype.debug = function(flag) {
 QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
 	this.Q.where.push(value);
-	if(args){ this.V.where.push(args); }
+	if(args){
+		if(typeof(args)=='string'){
+			this.V.where.push(args); 
+		} else {
+			this.V.where = this.V.where.concat(args);
+		}
+	}
 	this.Q.operator.push(operator||'AND');
 	return this;
 };

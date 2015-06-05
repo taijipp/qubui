@@ -14,6 +14,12 @@ describe('index.js', function() {
             assert.equal(qb.query, 'SELECT * FROM test WHERE test=?');
             assert.deepEqual(qb.args, ['args']);
         });
+        it('test select where array', function() {
+            var qb = qubui(db).select().from('test')
+                    .where('test=? and test2=?',['args','args2']).build();
+            assert.equal(qb.query, 'SELECT * FROM test WHERE test=? and test2=?');
+            assert.deepEqual(qb.args, ['args','args2']);
+        });
         it('test select order & limit', function() {
             var qb = qubui(db).select().from('test')
                     .order('data DESC').limit(10).build();
