@@ -3,7 +3,7 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.2
+1.0.3
 
 ### Change Log
 
