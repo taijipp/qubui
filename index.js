@@ -193,8 +193,11 @@ QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
 	this.Q.where.push(value);
 	if(args){
-		args = ( _.isArray(args) || !_.isString(args) )?args:args.split(',');
-		this.V.where = this.V.where.concat(args);
+		if( _.isArray(args) ){
+			this.V.where = this.V.where.concat(args);
+		} else {
+			this.V.where.push(args);
+		}
 	}
 	this.Q.operator.push(operator||'AND');
 	return this;
