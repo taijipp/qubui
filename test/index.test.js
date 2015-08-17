@@ -8,6 +8,14 @@ describe('index.js', function() {
             var qb = qubui(db).select().from('test').build();
             assert.equal(qb.query, 'SELECT * FROM test');
         });
+        it('test select field', function() {
+            var qb = qubui(db).select().field('test').from('test').build();
+            assert.equal(qb.query, 'SELECT test FROM test');
+        });
+        it('test select fields', function() {
+            var qb = qubui(db).select().field(['test','test2']).from('test').build();
+            assert.equal(qb.query, 'SELECT test,test2 FROM test');
+        });
         it('test select where', function() {
             var qb = qubui(db).select().from('test')
                     .where('test=?','args').build();
@@ -30,6 +38,17 @@ describe('index.js', function() {
                     .leftJoin('ljoin').on('test.x=?','ljoin.x').where('test=?','args').build();
             assert.equal(qb.query, 'SELECT * FROM test LEFT OUTER JOIN ljoin ON test.x=? WHERE test=?');
             assert.deepEqual(qb.args, ['ljoin.x','args']);
+        });
+        it('test select left join using', function() {
+            var qb = qubui(db).select().from('test')
+                    .leftJoin('ljoin').using(['x','y']).where('test=?','args').build();
+            assert.equal(qb.query, 'SELECT * FROM test LEFT OUTER JOIN ljoin USING (x,y) WHERE test=?');
+            assert.deepEqual(qb.args, ['args']);
+        });
+        it('test select group', function() {
+            var qb = qubui(db).select().from('test').group('key').where('test=?','args').build();
+            assert.equal(qb.query, 'SELECT * FROM test WHERE test=? GROUP BY key');
+            assert.deepEqual(qb.args, ['args']);
         });
     });
     describe('INSERT', function() {

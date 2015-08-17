@@ -31,6 +31,7 @@ QuBui.prototype.clear = function() {
 	,	'on':		[]
 	,	'having':	[]
 	,	'group':	[]
+	,	'using':	[]
 	,	'where':	[]
 	,	'operator':	[]
 	,	'order':	[]
@@ -80,8 +81,9 @@ QuBui.prototype.build = function() {
 			case 'SELECT':
 				var field = (this.Q.field.length>0)?this.Q.field.join():'*';
 				var joins = (this.Q.join.length>0 )?_.chain(this.Q.join).zip(this.Q.on).flatten().join('').value():'';
+				var using = (this.Q.using.length>0)?' USING ('+this.Q.using.join(',')+')':'';
 
-				this.query = 'SELECT '+field+(this.Q.table.length>0?' FROM '+this.Q.table.join()+joins+where+group+having+order+limit:'');
+				this.query = 'SELECT '+field+(this.Q.table.length>0?' FROM '+this.Q.table.join()+joins+using+where+group+having+order+limit:'');
 				this.args = this.args.concat(this.V.on, this.V.where, this.V.having, this.V.order, this.V.limit);
 			break;
 			case 'INSERT':
@@ -191,11 +193,8 @@ QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
 	this.Q.where.push(value);
 	if(args){
-		if(typeof(args)=='string'){
-			this.V.where.push(args); 
-		} else {
-			this.V.where = this.V.where.concat(args);
-		}
+		args = ( _.isArray(args) )?args:args.split(',');
+		this.V.where = this.V.where.concat(args);
 	}
 	this.Q.operator.push(operator||'AND');
 	return this;
@@ -246,22 +245,16 @@ QuBui.prototype.count = function(alias, reset) {
 };
 QuBui.prototype.field = function(value, reset) {
 	if(reset) this.Q.field=[];
-	if( _.isArray(value) ){
-		this.Q.field=this.Q.field.concat(value);
-	} else {
-		this.Q.field.push(value);
-	}
+	value = ( _.isArray(value) )?value:value.split(',');
+	this.Q.field=this.Q.field.concat(value);
 	return this;
 };
 
 QuBui.prototype.from = 
 QuBui.prototype.into = 
 QuBui.prototype.table = function(value) {
-	if( _.isArray(value) ){
-		this.Q.table=this.Q.table.concat(value);
-	} else {
-		this.Q.table.push(value);
-	}
+	value = ( _.isArray(value) )?value:value.split(',');
+	this.Q.table=this.Q.table.concat(value);
 	return this;
 };
 
@@ -297,6 +290,12 @@ QuBui.prototype.outerJoin = function(value,on,args) {
 QuBui.prototype.on = function(on,args) {
 	this.Q.on.push(' ON '+on);
 	if(args){ this.V.on.push(args); }
+	return this;
+};
+
+QuBui.prototype.using = function(field) {
+	field = ( _.isArray(field) )?field:field.split(',');
+	this.Q.using = this.V.where.concat(field);
 	return this;
 };
 
