@@ -193,7 +193,7 @@ QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
 	this.Q.where.push(value);
 	if(args){
-		args = ( _.isArray(args) )?args:args.split(',');
+		args = ( _.isArray(args) || !_.isString(args) )?args:args.split(',');
 		this.V.where = this.V.where.concat(args);
 	}
 	this.Q.operator.push(operator||'AND');
@@ -245,7 +245,7 @@ QuBui.prototype.count = function(alias, reset) {
 };
 QuBui.prototype.field = function(value, reset) {
 	if(reset) this.Q.field=[];
-	value = ( _.isArray(value) )?value:value.split(',');
+	value = ( _.isArray(value) || !_.isString(value) )?value:value.split(',');
 	this.Q.field=this.Q.field.concat(value);
 	return this;
 };
@@ -253,7 +253,7 @@ QuBui.prototype.field = function(value, reset) {
 QuBui.prototype.from = 
 QuBui.prototype.into = 
 QuBui.prototype.table = function(value) {
-	value = ( _.isArray(value) )?value:value.split(',');
+	value = ( _.isArray(value) || !_.isString(value) )?value:value.split(',');
 	this.Q.table=this.Q.table.concat(value);
 	return this;
 };
@@ -294,7 +294,7 @@ QuBui.prototype.on = function(on,args) {
 };
 
 QuBui.prototype.using = function(field) {
-	field = ( _.isArray(field) )?field:field.split(',');
+	field = ( _.isArray(field) || !_.isString(field) )?field:field.split(',');
 	this.Q.using = this.V.where.concat(field);
 	return this;
 };
