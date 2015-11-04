@@ -192,7 +192,7 @@ QuBui.prototype.debug = function(flag) {
 QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
 	this.Q.where.push(value);
-	if(args){
+	if( !_.isNull(args) && !_.isUndefined(args) ){
 		if( _.isArray(args) ){
 			this.V.where = this.V.where.concat(args);
 		} else {
