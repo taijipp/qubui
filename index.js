@@ -255,7 +255,8 @@ QuBui.prototype.field = function(value, reset) {
 
 QuBui.prototype.from = 
 QuBui.prototype.into = 
-QuBui.prototype.table = function(value) {
+QuBui.prototype.table = function(value, reset) {
+	if(reset) this.Q.table=[];
 	value = ( _.isArray(value) || !_.isString(value) )?value:value.split(',');
 	this.Q.table=this.Q.table.concat(value);
 	return this;
