@@ -3,11 +3,11 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.8
+1.0.9
 
 ### Change Log
 
-* enable overwrite tables(see 'from').
+* safety UPDATE & DELETE
 
 ### Installation
 

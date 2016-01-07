@@ -16,6 +16,7 @@ function QuBui(db, config){
 		this.db.__query = promise.denodeify(this.db.query);
  	}
 	if(config&&config.debug) this._debug=config.debug;
+	this.protected = (config&&config.protected)?config.protected:['UPDATE','DELETE'];
 }
 
 module.exports.QuBui = QuBui;
@@ -70,6 +71,10 @@ QuBui.prototype.build = function() {
 		while((++i)<max);
 	}
 	
+	if(_.indexOf(this.protected, this.command) > -1 && this.Q.where.length < 1){
+ 		return {errors:'NEED_CONDITIONS'};
+ 	}
+
 	var where = (this.Q.where.length>0)?' WHERE '+		this.Q.where.join(' AND '):'';
 	var order = (this.Q.order.length>0)?' ORDER BY '+	this.Q.order.join():'';
 	var limit = (this.Q.limit.length>0)?' LIMIT '+		this.Q.limit.join():'';
@@ -370,7 +375,9 @@ QuBui.prototype.getFirstColumn = function(callback) {
 QuBui.prototype.do =
 QuBui.prototype.run = function(callback) {
 	callback = callback||this._successHandler;
-	this.build();
+	
+	var qb = this.build();
+	if( qb.errors ){ return this._errorHandler(qb); }
 	
 	return this.db.__query(this.query, this.args).then(function(result){
 		return callback(false, result);
