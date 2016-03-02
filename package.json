@@ -1,6 +1,6 @@
 {
   "name": "qubui",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "make flexible query",
   "main": "index.js",
   "scripts": {
