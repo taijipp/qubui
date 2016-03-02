@@ -295,6 +295,14 @@ QuBui.prototype.outerJoin = function(value,on,args) {
 	if(args){ this.V.on.push(args); }
 	return this;
 };
+QuBui.prototype.straightjoin =
+QuBui.prototype.straightJoin = function(value,on,args) {
+	this.Q.join.push(' STRAIGHT_JOIN '+value);
+	if(on){ this.Q.on.push(' ON '+on); }
+	if(args){ this.V.on.push(args); }
+	return this;
+};
+
 
 QuBui.prototype.on = function(on,args) {
 	this.Q.on.push(' ON '+on);
