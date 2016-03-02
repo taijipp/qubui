@@ -3,11 +3,12 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.10
+1.0.11
 
 ### Change Log
 
 * add straightJoin
+* And... sync npm version patch
 
 ### Installation
 
