@@ -1,5 +1,6 @@
 var assert  = require('assert');
 var qubui = require("../index");
+var bracket = qubui.Bracket;
 var db = {};
  
 describe('index.js', function() {
@@ -90,6 +91,21 @@ describe('index.js', function() {
             var qb = qubui(db).delete().from('test')
                     .where('test=?','args').build();
             assert.equal(qb.query, 'DELETE FROM test WHERE test=?');
+            assert.deepEqual(qb.args, ['args']);
+        });
+    });
+    describe('SUB QUERY', function() {
+        it('test sub query 1', function() {
+            var sb = qubui().select().field('name').from('sub').where('sub.id=?','test.id');
+            var qb = qubui(db).select().field(['id', bracket(sb,'test_name')]).from('test')
+                    .where('test=?','args').build();
+            assert.equal(qb.query, 'SELECT id,(SELECT name FROM sub WHERE sub.id=test.id) test_name FROM test WHERE test=?');
+            assert.deepEqual(qb.args, ['args']);
+        });
+        it('test sub query 2', function() {
+            var sb = qubui().select().field('name').from('sub');
+            var qb = qubui(db).select().from(['test', bracket(sb,'name')]).where('test=?','args').build();
+            assert.equal(qb.query, 'SELECT * FROM test,(SELECT name FROM sub) name WHERE test=?');
             assert.deepEqual(qb.args, ['args']);
         });
     });

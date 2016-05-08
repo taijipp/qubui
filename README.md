@@ -3,12 +3,12 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.15
+1.0.16
 
 ### Change Log
 
-* add straightJoin
-* And... sync npm version patch
+* add Join
+* add bracket
 
 ### Installation
 
@@ -74,9 +74,20 @@ Delete:
 ```
 // DELETE FROM TEST WHERE foo=?
 var express = qubui(DB).delete().from('TEST').where('foo=?','bar').run( HANDLER );
-var koajs = yield this.qubui().delete().from('TEST')..where('foo=?','bar').run();
+var koajs = yield this.qubui().delete().from('TEST').where('foo=?','bar').run();
 ```
 
+SubQuery:
+```
+// SELECT id,(select name FROM OTHERS WHERE OTHERS.id=TEST.id) otherName FROM TEST WHERE foo=?
+var qubui = require('qubui');
+var bracket = qubui.bracket;
+
+var subQuery = qubui().select().field('name').from('OTHERS').where('OTHERS.id=TEST.id');
+var express = qubui(DB).select().field(['id',bracket(subQuery,'otherName')]).from('TEST').where('foo=?','bar').run( HANDLER );
+
+var koajs = yield this.qubui().select().field(['id',bracket(subQuery,'otherName')]).from('TEST')..where('foo=?','bar').run();
+```
 
 License
 ----

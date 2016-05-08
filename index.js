@@ -9,17 +9,31 @@ module.exports = function(db, config) {
 function QuBui(db, config){
 	this.db = db;
 	this.clear();
-	
-	if(config&&config.co){
- 		this.db.__query = this.db.query;
- 	} else {
-		this.db.__query = promise.denodeify(this.db.query);
- 	}
+	if(this.db){
+		if(config&&config.co){
+ 			this.db.__query = this.db.query;
+ 		} else {
+			this.db.__query = promise.denodeify(this.db.query);
+ 		}
+	}
 	if(config&&config.debug) this._debug=config.debug;
 	this.protected = (config&&config.protected)?config.protected:['UPDATE','DELETE'];
+	
+	if(config&&config._successHandler){
+		this._successHandler = config._successHandler;
+	}
+	if(config&&config._errorHandler){
+		this._errorHandler = config._errorHandler;
+	}
+}
+
+function Bracket(qb, alias) {
+	var x = qb.toString();
+	return '('+x+')'+(alias?' '+alias:'');
 }
 
 module.exports.QuBui = QuBui;
+module.exports.Bracket = Bracket;
 
 QuBui.prototype.clear = function() {
 	this.command = '';
@@ -92,15 +106,9 @@ QuBui.prototype.build = function() {
 				this.args = this.args.concat(this.V.on, this.V.where, this.V.having, this.V.order, this.V.limit);
 			break;
 			case 'INSERT':
-				if(this.Q.field.length<1){
-					var check = [];
-					_.each(_.values(this.data),function(v){
-						check.push( _.isString(v) && v.indexOf('NOW()')>-1 );
-					});
-					if( _.indexOf(check,true) > -1){
-						this.Q.field = _.keys(this.data);
-						this.data = _.values(this.data);
-					}
+				if(_.isEmpty(this.Q.field) && _.filter(this.data, function(v) { return v.indexOf('NOW()')>-1; }).length > 0 ){
+					this.Q.field = _.keys(this.data);
+					this.data = _.values(this.data);
 				}
 
 				if(this.Q.field.length>0){
@@ -125,24 +133,18 @@ QuBui.prototype.build = function() {
 				}
 			break;
 			case 'UPDATE':
-				if(!_.isString(this.data)){
+				if(!_.isString(this.data) &&  _.filter(this.data, function(v) { return v.indexOf('NOW()')>-1; }).length > 0 ){
 					var ctx = this;
-					var check = [];
-					_.each(_.values(this.data),function(v){
-						check.push( _.isString(v) && v.indexOf('NOW()')>-1 );
+					var q = [];
+					_.each(this.data, function(value,key){
+						if(_.isString(value) && value.indexOf('NOW()')>-1){
+							q.push('`'+key+'`='+value);
+						} else {
+							q.push('`'+key+'`=?');
+							ctx.args.push(value);
+						}
 					});
-					if( _.indexOf(check,true) > -1){
-						var q = [];
-						_.each(this.data, function(value,key){
-							if(_.isString(value) && value.indexOf('NOW()')>-1){
-								q.push('`'+key+'`='+value);
-							} else {
-								q.push('`'+key+'`=?');
-								ctx.args.push(value);
-							}
-						});
-						ctx.data = q.join();
-					}
+					ctx.data = q.join();
 				}
 
 				if(_.isString(this.data)){
@@ -193,6 +195,12 @@ QuBui.prototype.debug = function(flag) {
 	this._debug = flag||false;
 	return this;
 };
+QuBui.prototype.toString = function(flag) {
+	this.build();
+	return this.args.length>0?
+		require('util').format(this.query.replace('?','%s'), this.args):
+		this.query; 
+}
 
 QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
@@ -242,18 +250,21 @@ QuBui.prototype.values = function(value) {
 };
 
 QuBui.prototype.all = function(reset) {
-	if(reset) this.Q.field=[];
-	this.field('*');
+	this.field('*', reset);
 	return this;
 };
 QuBui.prototype.count = function(alias, reset) {
-	if(reset) this.Q.field=[];
-	this.field('count(*)'+((alias)?' as `'+alias+'`':' '));
+	this.field('COUNT(*)'+((alias)?' AS `'+alias+'`':' '), reset);
 	return this;
 };
 QuBui.prototype.field = function(value, reset) {
 	if(reset) this.Q.field=[];
-	value = ( _.isArray(value) || !_.isString(value) )?value:value.split(',');
+	if( _.isString(value) ){
+		value=value.split(',');
+	}
+	if( !_.isArray(value) ){
+		value=[value];
+	}
 	this.Q.field=this.Q.field.concat(value);
 	return this;
 };
@@ -267,6 +278,13 @@ QuBui.prototype.table = function(value, reset) {
 	return this;
 };
 
+QuBui.prototype.join = 
+QuBui.prototype.Join = function(value,on,args) {
+	this.Q.join.push(' JOIN '+value);
+	if(on){ this.Q.on.push(' ON '+on); }
+	if(args){ this.V.on.push(args); }
+	return this;
+};
 QuBui.prototype.leftjoin = 
 QuBui.prototype.leftJoin = function(value,on,args) {
 	this.Q.join.push(' LEFT OUTER JOIN '+value);
