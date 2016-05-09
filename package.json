@@ -1,6 +1,6 @@
 {
   "name": "qubui",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "make flexible query",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   "author": "taijipp <taijipp@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "lodash": "^3.6.0",
+    "lodash": "^4",
     "promise": "^6.1.0"
   },
   "devDependencies": {},

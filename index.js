@@ -106,7 +106,11 @@ QuBui.prototype.build = function() {
 				this.args = this.args.concat(this.V.on, this.V.where, this.V.having, this.V.order, this.V.limit);
 			break;
 			case 'INSERT':
-				if(_.isEmpty(this.Q.field) && _.filter(this.data, function(v) { return v.indexOf('NOW()')>-1; }).length > 0 ){
+				if(
+					_.isEmpty(this.Q.field) &&
+					this.data &&
+					!_.isEmpty(_.pickBy(this.data, function(v) { return (v+'').indexOf('NOW()')>-1; }))
+				){
 					this.Q.field = _.keys(this.data);
 					this.data = _.values(this.data);
 				}
@@ -133,7 +137,11 @@ QuBui.prototype.build = function() {
 				}
 			break;
 			case 'UPDATE':
-				if(!_.isString(this.data) &&  _.filter(this.data, function(v) { return v.indexOf('NOW()')>-1; }).length > 0 ){
+				if(
+					this.data &&
+					!_.isString(this.data) &&
+					!_.isEmpty(_.pickBy(this.data, function(v) { return (v+'').indexOf('NOW()')>-1; }))
+				){
 					var ctx = this;
 					var q = [];
 					_.each(this.data, function(value,key){
