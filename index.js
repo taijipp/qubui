@@ -61,6 +61,7 @@ QuBui.prototype.clear = function() {
 	,	'limit':	[]
 	}
 	
+	this.prev = '';
 	this.query = '';
 	this.args = [];
 
@@ -102,7 +103,7 @@ QuBui.prototype.build = function() {
 				var joins = (this.Q.join.length>0 )?_.chain(this.Q.join).zip(this.Q.on).flatten().join('').value():'';
 				var using = (this.Q.using.length>0)?' USING ('+this.Q.using.join(',')+')':'';
 
-				this.query = 'SELECT '+field+(this.Q.table.length>0?' FROM '+this.Q.table.join()+joins+using+where+group+having+order+limit:'');
+				this.query = this.prev+'SELECT '+field+(this.Q.table.length>0?' FROM '+this.Q.table.join()+joins+using+where+group+having+order+limit:'');
 				this.args = this.args.concat(this.V.on, this.V.where, this.V.having, this.V.order, this.V.limit);
 			break;
 			case 'INSERT':
@@ -174,13 +175,13 @@ QuBui.prototype.build = function() {
 					var k = [];
 
 					_.each(this.data, function(value,key){
-						if(value!=='NOW()'){
+						if(_.isString(value) && value.indexOf('NOW()')>-1){
+							q.push(value);
+							k.push('`'+key+'`='+value);
+						} else {
 							q.push('?');
 							data.push(value);
 							k.push(key+'=?');
-						} else {
-							q.push('NOW()');
-							k.push(key+'=NOW()');
 						}
 					});
 
@@ -339,6 +340,11 @@ QuBui.prototype.on = function(on,args) {
 QuBui.prototype.using = function(field) {
 	field = ( _.isArray(field) || !_.isString(field) )?field:field.split(',');
 	this.Q.using = this.V.where.concat(field);
+	return this;
+};
+
+QuBui.prototype.preQuery = function(q) {
+	this.prev = q;
 	return this;
 };
 
