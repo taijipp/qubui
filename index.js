@@ -69,21 +69,34 @@ QuBui.prototype.clear = function() {
 };
 
 QuBui.prototype.build = function() {
-	//allaways skip index 0
-	if(this.Q.where.length>1){
-		var i = 1;
-		var max = this.Q.where.length;
-		do{
-			var operator = this.Q.operator[i].toUpperCase();
-			if( operator !== 'AND' ){
-				this.Q.where.splice(i-1,0,this.Q.where[i-1]+' '+operator+' '+this.Q.where[i]);
-				this.Q.where.splice(i,2);
-				this.Q.operator.splice(i,1);
-				i--;
-				max--;
+	if(this.Q.where.length>0){
+ 		//find 'NOW()'
+ 		var i = 0;
+ 		var max = this.Q.where.length;
+ 		do{
+ 			var value = this.V.where[i]||'';
+ 			if(_.isString(value) && value.indexOf('NOW()')>-1){
+ 				this.Q.where[i] = this.Q.where[i].replace('?', this.V.where[i]);
+ 				this.V.where.splice(i,1);
+ 			}
+ 		}
+ 		while((++i)<max);
+ 
+		//allaways skip index 0
+		if(this.Q.where.length>1){
+			var i = 1;
+			do{
+				var operator = this.Q.operator[i].toUpperCase();
+				if( operator !== 'AND' ){
+					this.Q.where.splice(i-1,0,this.Q.where[i-1]+' '+operator+' '+this.Q.where[i]);
+					this.Q.where.splice(i,2);
+					this.Q.operator.splice(i,1);
+					i--;
+					max--;
+				}
 			}
+			while((++i)<max);
 		}
-		while((++i)<max);
 	}
 	
 	if(_.indexOf(this.protected, this.command) > -1 && this.Q.where.length < 1){

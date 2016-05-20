@@ -3,12 +3,11 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.18
+1.0.19
 
 ### Change Log
 
-* add preQuery()
-* fix UPSERT bugs
+* fix WHERE bugs
 
 ### Installation
 
