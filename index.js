@@ -40,25 +40,25 @@ QuBui.prototype.clear = function() {
 	this._debug = false;
 	
 	this.Q = {
-		'field':	[]
-	,	'table':	[]
-	,	'join':		[]
-	,	'on':		[]
-	,	'having':	[]
-	,	'group':	[]
-	,	'using':	[]
-	,	'where':	[]
-	,	'operator':	[]
-	,	'order':	[]
-	,	'limit':	[]
+		'field':	[],
+		'table':	[],
+		'join':		[],
+		'on':		[],
+		'having':	[],
+		'group':	[],
+		'using':	[],
+		'where':	[],
+		'operator':	[],
+		'order':	[],
+		'limit':	[]
 	};
 	
 	this.V = {
-		'on':		[]
-	,	'having':	[]
-	,	'where':	[]
-	,	'order':	[]
-	,	'limit':	[]
+		'on':		[],
+		'having':	[],
+		'where':	[],
+		'order':	[],
+		'limit':	[]
 	}
 	
 	this.prev = '';
@@ -217,12 +217,27 @@ QuBui.prototype.debug = function(flag) {
 	this._debug = flag||false;
 	return this;
 };
-QuBui.prototype.toString = function(flag) {
+QuBui.prototype.toString = function() {
 	this.build();
 	return this.args.length>0?
 		require('util').format(this.query.replace('?','%s'), this.args):
 		this.query; 
 }
+
+QuBui.prototype.condition = function(args, fields) {
+	if(!_.isArray(fields)){ fields = [fields]; }
+	for(var i=0, max=fields.length; i<max; i++){
+		var name = fields[i];
+		var data = _.get(args, name);
+		if( data ){
+			if (_.isArray( data )) {
+				this.where(name+' IN (' + data.join() + ')');
+			} else {
+				this.where(name+'=?', data);
+			}
+		}
+	}
+};
 
 QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
@@ -280,7 +295,7 @@ QuBui.prototype.count = function(alias, reset) {
 	return this;
 };
 QuBui.prototype.field = function(value, reset) {
-	if(reset) this.Q.field=[];
+	if(reset){ this.Q.field=[]; }
 	if( _.isString(value) ){
 		value=value.split(',');
 	}
@@ -294,7 +309,7 @@ QuBui.prototype.field = function(value, reset) {
 QuBui.prototype.from = 
 QuBui.prototype.into = 
 QuBui.prototype.table = function(value, reset) {
-	if(reset) this.Q.table=[];
+	if(reset){ this.Q.table=[]; }
 	value = ( _.isArray(value) || !_.isString(value) )?value:value.split(',');
 	this.Q.table=this.Q.table.concat(value);
 	return this;
