@@ -3,11 +3,11 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.19
+1.0.20
 
 ### Change Log
 
-* fix WHERE bugs
+* new method "condition"
 
 ### Installation
 
