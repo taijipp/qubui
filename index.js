@@ -16,7 +16,7 @@ function QuBui(db, config){
 			this.db.__query = promise.denodeify(this.db.query);
  		}
 	}
-	if(config&&config.debug) this._debug=config.debug;
+	if(config&&config.debug){ this._debug=config.debug; }
 	this.protected = (config&&config.protected)?config.protected:['UPDATE','DELETE'];
 	
 	if(config&&config._successHandler){
@@ -59,7 +59,7 @@ QuBui.prototype.clear = function() {
 		'where':	[],
 		'order':	[],
 		'limit':	[]
-	}
+	};
 	
 	this.prev = '';
 	this.query = '';
@@ -113,7 +113,7 @@ QuBui.prototype.build = function() {
 		switch(this.command) {
 			case 'SELECT':
 				var field = (this.Q.field.length>0)?this.Q.field.join():'*';
-				var joins = (this.Q.join.length>0 )?_.chain(this.Q.join).zip(this.Q.on).flatten().join('').value():'';
+				var joins = (this.Q.join.length >0)?_.chain(this.Q.join).zip(this.Q.on).flatten().join('').value():'';
 				var using = (this.Q.using.length>0)?' USING ('+this.Q.using.join(',')+')':'';
 
 				this.query = this.prev+'SELECT '+field+(this.Q.table.length>0?' FROM '+this.Q.table.join()+joins+using+where+group+having+order+limit:'');
@@ -132,7 +132,6 @@ QuBui.prototype.build = function() {
 				if(this.Q.field.length>0){
 					var q = [];
 					var data = [];
-					var check = [];
 					_.each(this.data, function(value){
 						if( _.isString(value) && value.indexOf('NOW()')>-1 ){
 							q.push(value);
@@ -222,7 +221,7 @@ QuBui.prototype.toString = function() {
 	return this.args.length>0?
 		require('util').format(this.query.replace('?','%s'), this.args):
 		this.query; 
-}
+};
 
 QuBui.prototype.condition = function(args, fields) {
 	if(!_.isArray(fields)){ fields = [fields]; }
@@ -241,13 +240,13 @@ QuBui.prototype.condition = function(args, fields) {
 
 QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
+	if(_.isNil(value)){ return this; }
 	this.Q.where.push(value);
-	if( !_.isNull(args) && !_.isUndefined(args) ){
-		if( _.isArray(args) ){
-			this.V.where = this.V.where.concat(args);
-		} else {
-			this.V.where.push(args);
+	if( !_.isNil(args) ){
+		if( !_.isArray(args) ){
+			args = [args];
 		}
+		this.V.where = this.V.where.concat(args);
 	}
 	this.Q.operator.push(operator||'AND');
 	return this;
@@ -260,21 +259,25 @@ QuBui.prototype.or = function(value,args) {
 
 QuBui.prototype.group =
 QuBui.prototype.groupBy = function(value,alias) {
+	if(_.isNil(value)){ return this; }
 	this.Q.group.push(value+(alias?' '+alias:''));
 	return this; 
 };
 QuBui.prototype.having = function(value,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.having.push(value);
 	if(args){ this.V.having.push(args); }
 	return this; 
 };
 QuBui.prototype.order = 
 QuBui.prototype.orderBy = function(value,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.order.push(value);
 	if(args){ this.V.order.push(args); }
 	return this; 
 };
 QuBui.prototype.limit = function(value,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.limit.push(value);
 	if(args){ this.V.limit.push(args); }
 	return this;
@@ -295,10 +298,11 @@ QuBui.prototype.count = function(alias, reset) {
 	return this;
 };
 QuBui.prototype.field = function(value, reset) {
+	if(_.isNil(value)){ return this; }
 	if(reset){ this.Q.field=[]; }
 	if( _.isString(value) ){
 		value=value.split(',');
-	}
+	} else
 	if( !_.isArray(value) ){
 		value=[value];
 	}
@@ -309,6 +313,7 @@ QuBui.prototype.field = function(value, reset) {
 QuBui.prototype.from = 
 QuBui.prototype.into = 
 QuBui.prototype.table = function(value, reset) {
+	if(_.isNil(value)){ return this; }
 	if(reset){ this.Q.table=[]; }
 	value = ( _.isArray(value) || !_.isString(value) )?value:value.split(',');
 	this.Q.table=this.Q.table.concat(value);
@@ -317,6 +322,7 @@ QuBui.prototype.table = function(value, reset) {
 
 QuBui.prototype.join = 
 QuBui.prototype.Join = function(value,on,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.join.push(' JOIN '+value);
 	if(on){ this.Q.on.push(' ON '+on); }
 	if(args){ this.V.on.push(args); }
@@ -324,6 +330,7 @@ QuBui.prototype.Join = function(value,on,args) {
 };
 QuBui.prototype.leftjoin = 
 QuBui.prototype.leftJoin = function(value,on,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.join.push(' LEFT OUTER JOIN '+value);
 	if(on){ this.Q.on.push(' ON '+on); }
 	if(args){ this.V.on.push(args); }
@@ -331,6 +338,7 @@ QuBui.prototype.leftJoin = function(value,on,args) {
 };
 QuBui.prototype.rightjoin = 
 QuBui.prototype.rightJoin = function(value,on,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.join.push(' RIGHT OUTER JOIN '+value);
 	if(on){ this.Q.on.push(' ON '+on); }
 	if(args){ this.V.on.push(args); }
@@ -338,6 +346,7 @@ QuBui.prototype.rightJoin = function(value,on,args) {
 };
 QuBui.prototype.innerjoin = 
 QuBui.prototype.innerJoin = function(value,on,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.join.push(' INNER JOIN '+value);
 	if(on){ this.Q.on.push(' ON '+on); }
 	if(args){ this.V.on.push(args); }
@@ -345,6 +354,7 @@ QuBui.prototype.innerJoin = function(value,on,args) {
 };
 QuBui.prototype.outerjoin = 
 QuBui.prototype.outerJoin = function(value,on,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.join.push(' FULL OUTER JOIN '+value);
 	if(on){ this.Q.on.push(' ON '+on); }
 	if(args){ this.V.on.push(args); }
@@ -352,6 +362,7 @@ QuBui.prototype.outerJoin = function(value,on,args) {
 };
 QuBui.prototype.straightjoin =
 QuBui.prototype.straightJoin = function(value,on,args) {
+	if(_.isNil(value)){ return this; }
 	this.Q.join.push(' STRAIGHT_JOIN '+value);
 	if(on){ this.Q.on.push(' ON '+on); }
 	if(args){ this.V.on.push(args); }
@@ -359,8 +370,9 @@ QuBui.prototype.straightJoin = function(value,on,args) {
 };
 
 
-QuBui.prototype.on = function(on,args) {
-	this.Q.on.push(' ON '+on);
+QuBui.prototype.on = function(value,args) {
+	if(_.isNil(value)){ return this; }
+	this.Q.on.push(' ON '+value);
 	if(args){ this.V.on.push(args); }
 	return this;
 };
@@ -399,7 +411,7 @@ QuBui.prototype.upsert = function() {
 };
 
 QuBui.prototype._successHandler = function(errors, result){
-	if(errors) return errors;
+	if(errors){ return errors; }
 	return result||false;
 };
 QuBui.prototype._errorHandler = function(e) {
