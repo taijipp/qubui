@@ -241,13 +241,23 @@ QuBui.prototype.condition = function(args, fields) {
 QuBui.prototype.where =
 QuBui.prototype.and = function(value,args,operator) {
 	if(_.isNil(value)){ return this; }
+	if(_.isNil(args) && value.indexOf('?')>-1){ return this; }
+
+	if(_.isArray(args) && !_.isEmpty(args)){
+		var splited = _.chain(value).replace(/\s/g,'').split('=').get(0).value();
+		var params = _.fill(Array(args.length),'?').join();
+		value = splited+' IN ('+params+')';
+	}
+
 	this.Q.where.push(value);
+
 	if( !_.isNil(args) ){
 		if( !_.isArray(args) ){
 			args = [args];
 		}
 		this.V.where = this.V.where.concat(args);
 	}
+	
 	this.Q.operator.push(operator||'AND');
 	return this;
 };

@@ -3,11 +3,12 @@
 QuBui is flexible query builder.
 
 ### Version
-1.0.21
+1.0.22
 
 ### Change Log
 
-* add validation
+* Supports arrays in the form of 'where'
+* Ignore when there is no binding value of 'where'
 
 ### Installation
 
@@ -85,7 +86,7 @@ var bracket = qubui.bracket;
 var subQuery = qubui().select().field('name').from('OTHERS').where('OTHERS.id=TEST.id');
 var express = qubui(DB).select().field(['id',bracket(subQuery,'otherName')]).from('TEST').where('foo=?','bar').run( HANDLER );
 
-var koajs = yield this.qubui().select().field(['id',bracket(subQuery,'otherName')]).from('TEST')..where('foo=?','bar').run();
+var koajs = yield this.qubui().select().field(['id',bracket(subQuery,'otherName')]).from('TEST').where('foo=?','bar').run();
 ```
 
 License
